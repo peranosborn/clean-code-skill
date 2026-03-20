@@ -1,0 +1,14 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Workspace / eval output (regenerated on demand)
+*-workspace/
+*.skill
+
+# Claude Code state
+.omc/

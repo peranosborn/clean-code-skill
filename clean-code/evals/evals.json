@@ -1,0 +1,23 @@
+{
+  "skill_name": "clean-code",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write me a TypeScript function that takes a list of products, filters out the ones that are out of stock, calculates the total price with a 20% VAT, and returns an object with the total and the count of in-stock items. Just give me the code.",
+      "expected_output": "Multiple small, well-named functions with clear separation of concerns. No single monolithic function. Names like calculateTotalWithVat, filterInStockProducts. No magic number 0.2 — should use a named constant. Arguments kept minimal.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Can you review this code and tell me what's wrong with it?\n\n```javascript\n// Function to process data\nfunction proc(d, t, f) {\n  // check if data exists\n  if (d) {\n    // filter the data\n    var res = [];\n    for (var i = 0; i < d.length; i++) {\n      if (d[i].type == t) {\n        // add to results\n        res.push(d[i]);\n      }\n    }\n    // check flag\n    if (f) {\n      // sort results\n      res.sort((a, b) => a.name.localeCompare(b.name));\n      // log results\n      console.log('Sorted results:', res);\n    }\n    // old implementation\n    // for (var j = 0; j < res.length; j++) {\n    //   console.log(res[j]);\n    // }\n    return res;\n  }\n}\n```",
+      "expected_output": "Review should flag: poor naming (proc, d, t, f, res), commented-out code, redundant comments that restate the code, function does multiple things (filter + sort + log), side effect (console.log), magic flag parameter, use of var instead of const/let, no type safety. Should reference specific clean code principles by name.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I've got this React component that's gotten a bit unwieldy. Can you refactor it to be cleaner?\n\n```tsx\nexport default function Dashboard({ userId }) {\n  const [d, setD] = useState(null);\n  const [l, setL] = useState(true);\n  const [e, setE] = useState(null);\n  const [f, setF] = useState('all');\n  \n  useEffect(() => {\n    // fetch data\n    setL(true);\n    fetch(`/api/users/${userId}/stats`)\n      .then(r => r.json())\n      .then(data => { setD(data); setL(false); })\n      .catch(err => { setE(err.message); setL(false); });\n  }, [userId]);\n  \n  if (l) return <div>Loading...</div>;\n  if (e) return <div>Error: {e}</div>;\n  if (!d) return null;\n  \n  // filter\n  const filtered = f === 'all' ? d.items : d.items.filter(i => i.category === f);\n  // calc total\n  const total = filtered.reduce((s, i) => s + i.amount, 0);\n  // calc avg\n  const avg = filtered.length > 0 ? total / filtered.length : 0;\n  \n  return (\n    <div>\n      <h1>Dashboard</h1>\n      <select value={f} onChange={e => setF(e.target.value)}>\n        <option value=\"all\">All</option>\n        {[...new Set(d.items.map(i => i.category))].map(c => (\n          <option key={c} value={c}>{c}</option>\n        ))}\n      </select>\n      <div>\n        <div>Total: ${total.toFixed(2)}</div>\n        <div>Average: ${avg.toFixed(2)}</div>\n        <div>Count: {filtered.length}</div>\n      </div>\n      <ul>\n        {filtered.map(i => (\n          <li key={i.id}>{i.name} - ${i.amount.toFixed(2)} ({i.category})</li>\n        ))}\n      </ul>\n    </div>\n  );\n}\n```",
+      "expected_output": "Refactored code should: rename all single-letter state variables to meaningful names (data/stats, isLoading, error, activeFilter), extract data fetching into a custom hook, extract filter logic, extract summary calculations into a pure function, break the JSX into smaller composed components (FilterSelect, SummaryCards, ItemList), remove redundant comments, use newspaper order. Should explain WHY each change was made, referencing clean code principles.",
+      "files": []
+    }
+  ]
+}

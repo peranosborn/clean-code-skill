@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Code Cheat Sheet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @page { size: A3 landscape; margin: 12mm; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #0f0f0f;
+    color: #e8e8e8;
+    line-height: 1.5;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  .page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 36px;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #2a2a2a;
+  }
+
+  .header h1 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    background: linear-gradient(135deg, #60d394, #3bb273, #29a363);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header .credit {
+    font-size: 0.82rem;
+    color: #666;
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  .header .credit a {
+    color: #60d394;
+    text-decoration: none;
+  }
+
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  @media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+
+  /* CARDS */
+  .card {
+    background: #1a1a1a;
+    border-radius: 14px;
+    padding: 22px;
+    border: 1px solid #2a2a2a;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .card.names::before { background: linear-gradient(90deg, #60d394, #3bb273); }
+  .card.functions::before { background: linear-gradient(90deg, #6ea8fe, #3d8bfd); }
+  .card.comments::before { background: linear-gradient(90deg, #ffda6a, #ffca2c); }
+  .card.formatting::before { background: linear-gradient(90deg, #e685b5, #d63384); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .card-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .names .card-icon { background: rgba(96,211,148,0.15); }
+  .functions .card-icon { background: rgba(110,168,254,0.15); }
+  .comments .card-icon { background: rgba(255,218,106,0.15); }
+  .formatting .card-icon { background: rgba(230,133,181,0.15); }
+
+  .card-header h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .names .card-header h2 { color: #60d394; }
+  .functions .card-header h2 { color: #6ea8fe; }
+  .comments .card-header h2 { color: #ffda6a; }
+  .formatting .card-header h2 { color: #e685b5; }
+
+  /* RULES */
+  .rule {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #222;
+  }
+
+  .rule:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  .rule h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #ccc;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .rule h3 .num {
+    font-size: 0.7rem;
+    font-weight: 700;
+    width: 18px; height: 18px;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .names .rule h3 .num { background: rgba(96,211,148,0.2); color: #60d394; }
+  .functions .rule h3 .num { background: rgba(110,168,254,0.2); color: #6ea8fe; }
+  .comments .rule h3 .num { background: rgba(255,218,106,0.2); color: #ffda6a; }
+  .formatting .rule h3 .num { background: rgba(230,133,181,0.2); color: #e685b5; }
+
+  .rule p {
+    font-size: 0.8rem;
+    color: #888;
+    line-height: 1.55;
+  }
+
+  /* CODE BLOCKS */
+  .code {
+    background: #111;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    line-height: 1.6;
+    margin-top: 8px;
+    overflow-x: auto;
+    border: 1px solid #222;
+  }
+
+  .code .bad { color: #f87171; }
+  .code .good { color: #60d394; }
+  .code .dim { color: #555; }
+  .code .kw { color: #c084fc; }
+  .code .str { color: #93c5fd; }
+
+  /* WIDE CARD */
+  .wide { grid-column: span 2; }
+
+  /* BOTTOM BAR */
+  .bottom-bar {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 2px solid #2a2a2a;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  @media (max-width: 1100px) { .bottom-bar { grid-template-columns: repeat(2, 1fr); } }
+
+  .bottom-card {
+    background: #1a1a1a;
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid #2a2a2a;
+  }
+
+  .bottom-card h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .bottom-card ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .bottom-card ul li {
+    font-size: 0.8rem;
+    padding: 3px 0;
+    color: #888;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .bottom-card ul li .icon-do { color: #60d394; font-weight: 700; font-size: 0.75rem; }
+  .bottom-card ul li .icon-dont { color: #f87171; font-weight: 700; font-size: 0.75rem; }
+
+  .quote-block {
+    background: #111;
+    border-left: 3px solid #60d394;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 14px;
+    font-size: 0.82rem;
+    color: #aaa;
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  .quote-block .attr {
+    font-style: normal;
+    font-size: 0.72rem;
+    color: #555;
+    margin-top: 6px;
+    display: block;
+  }
+
+  /* PRINT */
+  @media print {
+    body { background: #0f0f0f; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { padding: 16px; }
+    .grid { gap: 14px; }
+    .bottom-bar { gap: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>Clean Code Cheat Sheet</h1>
+    <div class="credit">
+      Based on Robert C. Martin's <em>Clean Code</em> philosophy
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="grid">
+
+    <!-- MEANINGFUL NAMES -->
+    <div class="card names">
+      <div class="card-header">
+        <div class="card-icon">Aa</div>
+        <h2>Meaningful Names</h2>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">1</span> Reveal Intent</h3>
+        <p>If you have to check the implementation to understand the name, the name failed.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">2</span> Don't Lie</h3>
+        <p>If a name promises something it doesn't deliver, it erodes trust and causes bugs.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">3</span> Read Like English</h3>
+        <p>Your code is read by humans, so make it sound like human language.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">4</span> Make Names Searchable</h3>
+        <p>Single-letter variables and magic numbers are impossible to grep for.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">5</span> Skip Type Encoding</h3>
+        <p>Let your tools handle the types while you focus on logic.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">6</span> Tell a Story</h3>
+        <p>Every function should be transparently obvious and lead the reader naturally to the next.</p>
+      </div>
+
+      <div class="code">
+<span class="bad">// Bad</span>
+<span class="kw">const</span> d = getDogs();
+<span class="kw">const</span> allDogs = dogs.filter(d => d.active);
+
+<span class="good">// Good</span>
+<span class="kw">const</span> activeDogs = getDogsForUser();
+<span class="kw">const</span> activeDogs = dogs.filter(dog => dog.isActive);
+      </div>
+    </div>
+
+    <!-- FUNCTIONS -->
+    <div class="card functions">
+      <div class="card-header">
+        <div class="card-icon">fn</div>
+        <h2>Functions</h2>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">1</span> Do One Thing</h3>
+        <p>A function should DO something or ANSWER something, but not both. (Command-query separation.)</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">2</span> Keep Args Low</h3>
+        <p>Ideal: 0–1. Acceptable: 2. Three+: use an options object. Low arg count reduces mental weight.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">3</span> One Abstraction Level</h3>
+        <p>Mixing high-level and low-level is always confusing and obscures intent.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">4</span> Bury the Switch</h3>
+        <p>Keep your high-level logic clean — hide switch statements and complex conditionals behind helpers.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">5</span> No Side Effects</h3>
+        <p>A side effect is when a function modifies state outside its own scope unexpectedly.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">6</span> Exceptions &gt; Error Codes</h3>
+        <p>Use try/catch instead of error codes. Separate error handling from business logic.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">7</span> DRY</h3>
+        <p>Don't repeat yourself. Duplicated logic means duplicated bugs.</p>
+      </div>
+
+      <div class="code">
+<span class="bad">// Bad — does two things</span>
+<span class="kw">function</span> logMealAndUpdate(id, items) {
+  <span class="dim">// ...50 lines of DB + UI + calcs</span>
+}
+
+<span class="good">// Good — reads like a story</span>
+<span class="kw">function</span> logMeal(id, items) {
+  <span class="kw">const</span> log = createMealLog(id);
+  <span class="kw">const</span> entries = buildItems(log.id, items);
+  <span class="kw">await</span> saveItems(entries);
+}
+      </div>
+    </div>
+
+    <!-- COMMENTS -->
+    <div class="card comments">
+      <div class="card-header">
+        <div class="card-icon">//</div>
+        <h2>Comments</h2>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">1</span> Why, Not What</h3>
+        <p>Code tells you how. Comments tell you why. If the code already says it, the comment is noise.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">2</span> Comments Rot</h3>
+        <p>Code evolves, comments may not. A stale comment is worse than no comment.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">3</span> Warnings Are Good</h3>
+        <p>Comments that protect code from well-meaning mistakes are valuable. Use them for gotchas.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">4</span> Don't Apologise</h3>
+        <p>When comments apologise for structure, the structure needs to change.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">5</span> Git Handles History</h3>
+        <p>Commented-out code, attributions, changelogs — git handles all of it. Delete dead code.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">6</span> Clarify, Don't Confuse</h3>
+        <p>If your team can't read it instantly, rewrite it. Comments should communicate, not confuse.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">7</span> Rename &gt; Comment</h3>
+        <p>Stop commenting what your code does. Rename it, extract it, and let it explain itself.</p>
+      </div>
+
+      <div class="code">
+<span class="bad">// Bad — restates the obvious</span>
+<span class="dim">// get the user's dogs</span>
+<span class="kw">const</span> dogs = getUserDogs();
+
+<span class="good">// Good — explains WHY</span>
+<span class="dim">// Multiply first to avoid float drift</span>
+<span class="kw">const</span> grams = (kg * 1000 * pct) / 100;
+      </div>
+    </div>
+
+    <!-- FORMATTING -->
+    <div class="card formatting">
+      <div class="card-header">
+        <div class="card-icon">{ }</div>
+        <h2>Formatting</h2>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">1</span> Newspaper Order</h3>
+        <p>Highest-level function at the top. Every definition below its caller. Read top-to-bottom.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">2</span> Declare Near Usage</h3>
+        <p>Declare variables close to where they're used. Proximity signals relationship.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">3</span> Team Rules Win</h3>
+        <p>Consistency beats preference. Let the team decide, then enforce with Prettier + ESLint.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">4</span> Simplest Rules, Biggest Impact</h3>
+        <p>The simplest formatting rules do the most heavy lifting. Don't overcomplicate it.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">5</span> Vertical Space = Separation</h3>
+        <p>Use blank lines to separate concepts. Related lines stay close. Unrelated code gets breathing room.</p>
+      </div>
+
+      <div class="rule">
+        <h3><span class="num">6</span> Group Properties</h3>
+        <p>Group class/component properties in one place. Don't scatter related declarations across a file.</p>
+      </div>
+
+      <div class="code">
+<span class="good">// Newspaper order</span>
+<span class="kw">export function</span> Dashboard() {
+  <span class="dim">// high-level orchestration</span>
+}
+
+<span class="kw">function</span> DailyOverview() { <span class="dim">...</span> }
+<span class="kw">function</span> RatioChart() { <span class="dim">...</span> }
+<span class="kw">function</span> QuickLogButton() { <span class="dim">...</span> }
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM SECTION -->
+  <div class="bottom-bar">
+
+    <div class="bottom-card">
+      <h3 style="color: #60d394;">Do</h3>
+      <ul>
+        <li><span class="icon-do">&#10003;</span> Write it messy, then refine it</li>
+        <li><span class="icon-do">&#10003;</span> Make every function tell a story</li>
+        <li><span class="icon-do">&#10003;</span> Delete dead code — git has it</li>
+        <li><span class="icon-do">&#10003;</span> Use early returns to flatten nesting</li>
+        <li><span class="icon-do">&#10003;</span> Extract helpers until code reads like prose</li>
+        <li><span class="icon-do">&#10003;</span> Enforce style with automated tools</li>
+        <li><span class="icon-do">&#10003;</span> Comment warnings and constraints</li>
+      </ul>
+    </div>
+
+    <div class="bottom-card">
+      <h3 style="color: #f87171;">Don't</h3>
+      <ul>
+        <li><span class="icon-dont">&#10007;</span> Leave your first draft as final code</li>
+        <li><span class="icon-dont">&#10007;</span> Mix abstraction levels in a function</li>
+        <li><span class="icon-dont">&#10007;</span> Comment out code — delete it</li>
+        <li><span class="icon-dont">&#10007;</span> Use magic numbers or single letters</li>
+        <li><span class="icon-dont">&#10007;</span> Write functions that do AND answer</li>
+        <li><span class="icon-dont">&#10007;</span> Apologise in comments — fix the code</li>
+        <li><span class="icon-dont">&#10007;</span> Encode types into variable names</li>
+      </ul>
+    </div>
+
+    <div class="bottom-card">
+      <h3 style="color: #ffda6a;">Quick Tests</h3>
+      <ul>
+        <li><span class="icon-do">?</span> Can you name what this function does in one phrase?</li>
+        <li><span class="icon-do">?</span> Would a new team member understand this variable?</li>
+        <li><span class="icon-do">?</span> Can you delete this comment and still understand the code?</li>
+        <li><span class="icon-do">?</span> Is every function under 20 lines?</li>
+        <li><span class="icon-do">?</span> Does each function sit at one abstraction level?</li>
+        <li><span class="icon-do">?</span> Could you search for this name and find it?</li>
+      </ul>
+    </div>
+
+    <div class="bottom-card">
+      <div class="quote-block">
+        It's okay if your first draft is messy, just don't leave it that way.
+        <span class="attr">— Clean Code</span>
+      </div>
+      <div class="quote-block" style="margin-top: 10px;">
+        Your function should either DO something or ANSWER something, but not both.
+        <span class="attr">— Clean Code</span>
+      </div>
+      <div class="quote-block" style="margin-top: 10px;">
+        Stop commenting what your code does. Rename it, extract it, and let it explain itself.
+        <span class="attr">— Clean Code</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
